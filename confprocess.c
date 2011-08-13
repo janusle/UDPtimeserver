@@ -107,7 +107,7 @@ init( char* filename , char* config[] )
   char *line, **tmp;
   int i;
 
-  line = (char*)malloc( sizeof(char) * LINENUM);
+  line = (char*)Malloc( sizeof(char) * LINENUM);
 
   fd = fopen(filename, "r");
   if( fd == NULL )
@@ -116,7 +116,7 @@ init( char* filename , char* config[] )
      exit(-1);
   }
 
-  for(i=0; i<LINENUM; i++)
+  for(i=0; i<CONFLEN; i++)
     config[i] = NULL;
 
   while( (getl(line,  fd ) != NULL) )
