@@ -53,8 +53,8 @@ receive( int sockfd, void *data, SAI* sock_addr)
 {
    FILE *lfd; 
    binarydata *ptr;
-   int n, addrlen;
-
+   int n;
+   unsigned addrlen;
    ptr = (binarydata*)data;
 
    n = recvfrom( sockfd, data, NUMOFBYTES ,0 ,(SA*)sock_addr, &addrlen  );

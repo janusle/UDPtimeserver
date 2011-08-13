@@ -78,7 +78,7 @@ trim( char* line )
 
 
 static char* 
-getline( char *line, FILE* fd )
+getl( char *line, FILE* fd )
 {
    char c; 
    int i;
@@ -119,7 +119,7 @@ init( char* filename , char* config[] )
   for(i=0; i<LINENUM; i++)
     config[i] = NULL;
 
-  while( (getline(line,  fd ) != NULL) )
+  while( (getl(line,  fd ) != NULL) )
   {
 
     if( isalpha(line[0]) )

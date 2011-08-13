@@ -1,10 +1,10 @@
 CC=gcc
-CFLAGS= -W -Wall -g -pedantic -lsocket -lnsl
+CFLAGS= -W -Wall -g -pedantic #-lsocket -lnsl
 
-all: time-client
+all: time-server
 
-time-client: error.o udp.o confprocess.o time-client.o
-	$(CC) -o time-client confprocess.o error.o udp.o time-client.o $(CFLAGS)
+time-server: error.o udp.o confprocess.o time-server.o
+	$(CC) -o time-server confprocess.o error.o udp.o time-server.o $(CFLAGS)
 
 error.o: error.c
 	$(CC) -c error.c $(CFLAGS)
@@ -15,12 +15,12 @@ udp.o: udp.c
 confprocess.o: confprocess.c
 	$(CC) -c confprocess.c $(CFLAGS)
 
-time-client.o: time-client.c 
-	$(CC) -c time-client.c $(CFLAGS)
+time-server.o: time-server.c 
+	$(CC) -c time-server.c $(CFLAGS)
 
 clean:
 	-rm *.o
-	-rm time-client
+	-rm time-server
 	-rm core
 	-rm recvlog
 	-rm sendlog
