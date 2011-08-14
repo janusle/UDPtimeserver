@@ -58,6 +58,7 @@ receive( int sockfd, void *data, SAI* sock_addr)
    unsigned addrlen;
    ptr = (binarydata*)data;
 
+   addrlen = sizeof(*sock_addr);
    n = recvfrom( sockfd, data, NUMOFBYTES ,0 ,(SA*)sock_addr, &addrlen  );
  
    /* for test */
