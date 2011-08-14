@@ -306,16 +306,30 @@ reply( int sockfd, SAI* sock_addr, int logged )
 
    /* if return value is -1, ignore request */
    if ( gentime( &req ) == -1 )
+   {
+     if( logged )
+       fprintf(stderr,"timeserver: ignore request from %s:%d\n", 
+            getip((SAI*)sock_addr),
+            ((SAI*)sock_addr)->sin_port);
+
+     lfd = fopen(SENDLOG, "a");
+     fprintf(lfd, "timeserver: ignore request from %s:%d\n", 
+             getip((SAI*)sock_addr),
+             ((SAI*)sock_addr)->sin_port);
+
+     fclose(lfd);
      return SUCCESS;
+   }
+
 
    if( logged )
-    fprintf(stderr,"timeclient: replying to %s:%d\n", 
+    fprintf(stderr,"timeserver: replying to %s:%d\n", 
             getip((SAI*)sock_addr),
             ((SAI*)sock_addr)->sin_port);
 
 
    lfd = fopen(SENDLOG, "a");
-   fprintf(lfd, "timeclient: replying to %s:%d\n", 
+   fprintf(lfd, "timeserver: replying to %s:%d\n", 
            getip((SAI*)sock_addr),
            ((SAI*)sock_addr)->sin_port);
 
