@@ -116,7 +116,7 @@ getrequest( int sockfd, SAI* sock_addr, int logged )
      lfd = fopen(RECVLOG, "a");
      fprintf(lfd,"timeserver: invalid request from %s:%d \n\n\n", 
              getip(sock_addr),
-             sock_addr->sin_port);
+             ntohs( sock_addr->sin_port) );
      fclose(lfd);
   
 
@@ -124,7 +124,7 @@ getrequest( int sockfd, SAI* sock_addr, int logged )
      if( logged )
       fprintf(stderr,"timeserver: invalid request from %s:%d\n", 
              getip(sock_addr),
-             sock_addr->sin_port);
+             ntohs(sock_addr->sin_port) );
 
 
      return FAILURE;
@@ -134,7 +134,7 @@ getrequest( int sockfd, SAI* sock_addr, int logged )
    lfd = fopen(RECVLOG, "a");
    fprintf(lfd,"timeserver: valid request from %s:%d\n", 
              getip(sock_addr),
-             sock_addr->sin_port);
+             ntohs(sock_addr->sin_port) );
 
    /* log */
    fclose(lfd);
@@ -143,7 +143,7 @@ getrequest( int sockfd, SAI* sock_addr, int logged )
    {
     fprintf(stderr,"timeserver: valid request from %s:%d\n", 
              getip(sock_addr),
-             sock_addr->sin_port);
+             ntohs(sock_addr->sin_port) );
    } 
 
    return SUCCESS;
@@ -208,7 +208,7 @@ senddata( int fd, void *data,int size ,
      */
 
     lfd = fopen(SENDLOG, "a");
-    fprintf(lfd, "%x\n%d\n%d\n%d\n%d\n%d\n%d\n%d\n%c%c%c%c\n\n",
+    fprintf(lfd, "%x\n%x\n%d\n%d\n%d\n%d\n%d\n%d\n%c%c%c%c\n\n",
                ptr->mesgType, ptr->status, ptr->second,
                ptr->minute, ptr->hour, ptr->day, 
                ptr->month, ptr->year, ptr->timezone[0], ptr->timezone[1],
@@ -278,7 +278,7 @@ gentime( binarydata* req )
       req->hour = (unsigned char)t->tm_hour;
       req->day = (unsigned char)t->tm_mday;
       req->month = (unsigned char)t->tm_mon;
-      req->year = (unsigned char)t->tm_year;
+      req->year = 1900 + t->tm_year;
       break;
     case 3:
       /* time out */
@@ -289,6 +289,20 @@ gentime( binarydata* req )
       err_quit(false);
   }
   return 0;
+}
+
+
+static char*
+printtime( binarydata * data)
+{
+  static char tmp[TMPLEN];
+  sprintf( tmp, "%d:%d:%d %d-%d-%d %c%c%c%c\n",
+           data->hour, data->minute, data->second,
+           data->day, data->month, data->year,
+           data->timezone[0], data->timezone[1],
+           data->timezone[2], data->timezone[3]);
+  return tmp;
+
 }
 
 
@@ -310,12 +324,12 @@ reply( int sockfd, SAI* sock_addr, int logged )
      if( logged )
        fprintf(stderr,"timeserver: ignore request from %s:%d\n", 
             getip((SAI*)sock_addr),
-            ((SAI*)sock_addr)->sin_port);
+            ((SAI*)sock_addr)->sin_port );
 
      lfd = fopen(SENDLOG, "a");
      fprintf(lfd, "timeserver: ignore request from %s:%d\n", 
              getip((SAI*)sock_addr),
-             ((SAI*)sock_addr)->sin_port);
+            ((SAI*)sock_addr)->sin_port);
 
      fclose(lfd);
      return SUCCESS;
@@ -323,15 +337,17 @@ reply( int sockfd, SAI* sock_addr, int logged )
 
 
    if( logged )
-    fprintf(stderr,"timeserver: replying to %s:%d\n", 
+    fprintf(stderr,"timeserver: replying to %s:%d with %s\n", 
             getip((SAI*)sock_addr),
-            ((SAI*)sock_addr)->sin_port);
+            ((SAI*)sock_addr)->sin_port,
+            printtime(&req) );
 
 
    lfd = fopen(SENDLOG, "a");
-   fprintf(lfd, "timeserver: replying to %s:%d\n", 
+   fprintf(lfd, "timeserver: replying to %s:%d with %s\n", 
            getip((SAI*)sock_addr),
-           ((SAI*)sock_addr)->sin_port);
+           ((SAI*)sock_addr)->sin_port,
+           printtime(&req) );
 
    fclose(lfd);
    return senddata( sockfd, &req, sizeof(req),  (SA*)sock_addr,

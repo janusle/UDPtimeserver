@@ -27,7 +27,7 @@
 #define SENDLOG "sendlog"
 #define RECVLOG "recvlog"
 #define TMPLEN 30
-#define RANNUM 4
+#define RANNUM 3
 typedef struct 
 {
   uint16_t mesgType;
