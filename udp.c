@@ -65,7 +65,6 @@ receive( int sockfd, void *data, SAI* sock_addr)
    printf("Recv: %d\n", n);
    */
 
-
    if( n != NUMOFBYTES )
       return FAILURE;
 
@@ -109,6 +108,7 @@ getrequest( int sockfd, SAI* sock_addr, int logged )
 {
    binarydata data; 
    FILE *lfd;
+
 
    if ( receive( sockfd, &data, sock_addr) == FAILURE )
    {
@@ -324,12 +324,12 @@ reply( int sockfd, SAI* sock_addr, int logged )
      if( logged )
        fprintf(stderr,"timeserver: ignore request from %s:%d\n", 
             getip((SAI*)sock_addr),
-            ((SAI*)sock_addr)->sin_port );
+            ntohs( ((SAI*)sock_addr)->sin_port ) );
 
      lfd = fopen(SENDLOG, "a");
      fprintf(lfd, "timeserver: ignore request from %s:%d\n", 
              getip((SAI*)sock_addr),
-            ((SAI*)sock_addr)->sin_port);
+            ntohs( ((SAI*)sock_addr)->sin_port) );
 
      fclose(lfd);
      return SUCCESS;
@@ -339,14 +339,14 @@ reply( int sockfd, SAI* sock_addr, int logged )
    if( logged )
     fprintf(stderr,"timeserver: replying to %s:%d with %s\n", 
             getip((SAI*)sock_addr),
-            ((SAI*)sock_addr)->sin_port,
+            ntohs( ((SAI*)sock_addr)->sin_port ),
             printtime(&req) );
 
 
    lfd = fopen(SENDLOG, "a");
    fprintf(lfd, "timeserver: replying to %s:%d with %s\n", 
            getip((SAI*)sock_addr),
-           ((SAI*)sock_addr)->sin_port,
+           ntohs( ((SAI*)sock_addr)->sin_port ),
            printtime(&req) );
 
    fclose(lfd);
@@ -370,7 +370,8 @@ void
 do_udp( char* address, int port, int logged, int sup_timeout )
 {
   int sockfd;
-  SAI *sock_addr;   
+  SAI *sock_addr; 
+
   sockfd = serverinit(address, port); 
 
   sock_addr = (SAI*)malloc(sizeof(SAI));
