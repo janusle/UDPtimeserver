@@ -87,13 +87,13 @@ receive( int sockfd, void *data, SAI* sock_addr)
 
 
      /*for test*/
-    
+     /* 
      printf("%x\n%x\n%d\n%d\n%d\n%d\n%d\n%d\n%c%c%c%c\n",
              ptr->mesgType, ptr->status, ptr->second,
              ptr->minute, ptr->hour, ptr->day, 
              ptr->month, ptr->year, ptr->timezone[0],
              ptr->timezone[1], ptr->timezone[2],ptr->timezone[3]);
-
+     */
    fclose(lfd);
 
 
@@ -105,15 +105,10 @@ receive( int sockfd, void *data, SAI* sock_addr)
 
 
 int 
-getrequest( int sockfd, int logged )
+getrequest( int sockfd, SAI* sock_addr, int logged )
 {
    binarydata data; 
    FILE *lfd;
-   SAI *sock_addr;  
-   
-   sock_addr = (SAI*)malloc(sizeof(SAI));
-
-   bzero( sock_addr, sizeof(SAI) );
 
    if ( receive( sockfd, &data, sock_addr) == FAILURE )
    {
@@ -234,27 +229,95 @@ senddata( int fd, void *data,int size ,
 }
 
 
+static int 
+randomint( int range )
+{
+  srand((unsigned)time(NULL));
+  return rand()%range;
+}
+
+
+static int 
+gentime( binarydata* req )
+{
+  int ran;
+  time_t timer;
+  struct tm* t;
+
+  ran = randomint( RANNUM );
+  switch(ran)
+  {
+    case 0:
+      /* valid data */
+      req->second = 56;
+      req->minute = 34;
+      req->hour = 12;
+      req->day = 13;
+      req->month = 12;
+      req->year = 2011;
+      break;
+    case 1:
+      /* invalid data */
+      req->second = 89;
+      req->minute = 78;
+      req->hour = 26;
+      req->day = 45;
+      req->month = 14;
+      req->year = 2006;
+      break;
+    case 2:
+      /* correct time-of-day*/
+      timer = time(NULL);
+      t = localtime(&timer);
+      if( t == NULL )
+      {
+         err_quit(false);
+      }
+      req->second = (unsigned char)t->tm_sec;
+      req->minute = (unsigned char)t->tm_min;
+      req->hour = (unsigned char)t->tm_hour;
+      req->day = (unsigned char)t->tm_mday;
+      req->month = (unsigned char)t->tm_mon;
+      req->year = (unsigned char)t->tm_year;
+      break;
+    case 3:
+      /* time out */
+      return -1;
+      break;
+    default:
+      fprintf(stderr,"Fail to generate random number");
+      err_quit(false);
+  }
+  return 0;
+}
+
+
 int 
-request( int sockfd, SAI* sock_addr, int logged )
+reply( int sockfd, SAI* sock_addr, int logged )
 {
    binarydata req;
    FILE *lfd;
 
-   /* init request data */
+   /* init reply data */
    bzero( &req, sizeof(req) );
    req.mesgType = MAGICNUM;
-   req.status = 0x52;
+   req.status = REPLY;
    memcpy( req.timezone, "AEST", TIMEZONELEN);
- 
+
+   /* if return value is -1, ignore request */
+   if ( gentime( &req ) == -1 )
+     return SUCCESS;
 
    if( logged )
-    fprintf(stderr,"timeclient: request to %s:%d\n", getip((SAI*)sock_addr),
-             ((SAI*)sock_addr)->sin_port);
+    fprintf(stderr,"timeclient: replying to %s:%d\n", 
+            getip((SAI*)sock_addr),
+            ((SAI*)sock_addr)->sin_port);
 
 
    lfd = fopen(SENDLOG, "a");
-   fprintf(lfd, "timeclient: request to %s:%d\n", getip((SAI*)sock_addr),
-               ((SAI*)sock_addr)->sin_port);
+   fprintf(lfd, "timeclient: replying to %s:%d\n", 
+           getip((SAI*)sock_addr),
+           ((SAI*)sock_addr)->sin_port);
 
    fclose(lfd);
    return senddata( sockfd, &req, sizeof(req),  (SA*)sock_addr,
@@ -264,9 +327,9 @@ request( int sockfd, SAI* sock_addr, int logged )
 
 
 void
-Request( int sockfd, SAI* sock_addr, int logged )
+Reply( int sockfd, SAI* sock_addr, int logged )
 {
-   if( request( sockfd, sock_addr, logged ) == -1 )
+   if( reply( sockfd, sock_addr, logged ) == -1 )
    {
       err_quit(false); 
    }
@@ -277,13 +340,17 @@ void
 do_udp( char* address, int port, int logged, int sup_timeout )
 {
   int sockfd;
-
+  SAI *sock_addr;   
   sockfd = serverinit(address, port); 
+
+  sock_addr = (SAI*)malloc(sizeof(SAI));
+  bzero( sock_addr, sizeof(SAI) );
+
   while(true)
   {
-     if( getrequest( sockfd, logged ) != FAILURE )  
+     if( getrequest( sockfd, sock_addr, logged ) != FAILURE )  
      {
-
+        Reply( sockfd, sock_addr, logged ); 
      }
   }
   /*

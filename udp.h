@@ -8,6 +8,7 @@
 #include<strings.h>
 #include<string.h>
 #include<netdb.h>
+#include<time.h>
 #include<sys/select.h>
 
 #include "error.h"
@@ -26,7 +27,7 @@
 #define SENDLOG "sendlog"
 #define RECVLOG "recvlog"
 #define TMPLEN 30
-
+#define RANNUM 4
 typedef struct 
 {
   uint16_t mesgType;
@@ -57,11 +58,11 @@ int senddata( int fd, void *data, int size,
 
 int receive( int sockfd, void *data , SAI* sock_addr);
 
-int request( int sockfd, SAI* sock_addr, int logged);
+int reply( int sockfd, SAI* sock_addr, int logged);
 
-void Request( int sockfd, SAI* sock_addr, int logged);
+void Reply( int sockfd, SAI* sock_addr, int logged);
 
-int getrequest( int sockfd, int logged );
+int getrequest( int sockfd, SAI* sock_addr, int logged );
 
 void do_udp( char* address, int port, int logged, int sup_timeout );
 
