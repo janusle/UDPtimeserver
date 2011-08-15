@@ -239,13 +239,16 @@ randomint( int range )
 
 
 static int 
-gentime( binarydata* req )
+gentime( binarydata* req , int sup_timeout )
 {
   int ran;
   time_t timer;
   struct tm* t;
 
-  ran = randomint( RANNUM );
+  if( sup_timeout )
+   ran = randomint( RANNUM );
+  else
+   ran = randomint( RANNUM-1 );
   switch(ran)
   {
     case 0:
@@ -308,7 +311,7 @@ printtime( binarydata * data)
 
 
 int 
-reply( int sockfd, SAI* sock_addr, int logged )
+reply( int sockfd, SAI* sock_addr, int logged , int sup_timeout )
 {
    binarydata req;
    FILE *lfd;
@@ -320,15 +323,15 @@ reply( int sockfd, SAI* sock_addr, int logged )
    memcpy( req.timezone, "AEST", TIMEZONELEN);
 
    /* if return value is -1, ignore request */
-   if ( gentime( &req ) == -1 )
+   if ( gentime( &req, sup_timeout ) == -1 )
    {
      if( logged )
-       fprintf(stderr,"timeserver: ignore request from %s:%d\n", 
+       fprintf(stderr,"timeserver: ignore request from %s:%d\n\n", 
             getip((SAI*)sock_addr),
             ntohs( ((SAI*)sock_addr)->sin_port ) );
 
      lfd = fopen(SENDLOG, "a");
-     fprintf(lfd, "timeserver: ignore request from %s:%d\n", 
+     fprintf(lfd, "timeserver: ignore request from %s:%d\n\n", 
              getip((SAI*)sock_addr),
             ntohs( ((SAI*)sock_addr)->sin_port) );
 
@@ -358,9 +361,9 @@ reply( int sockfd, SAI* sock_addr, int logged )
 
 
 void
-Reply( int sockfd, SAI* sock_addr, int logged )
+Reply( int sockfd, SAI* sock_addr, int logged , int sup_timeout)
 {
-   if( reply( sockfd, sock_addr, logged ) == -1 )
+   if( reply( sockfd, sock_addr, logged , sup_timeout) == -1 )
    {
       err_quit(false); 
    }
@@ -382,7 +385,7 @@ do_udp( char* address, int port, int logged, int sup_timeout )
   {
      if( getrequest( sockfd, sock_addr, logged ) != FAILURE )  
      {
-        Reply( sockfd, sock_addr, logged ); 
+        Reply( sockfd, sock_addr, logged , sup_timeout); 
      }
   }
   /*

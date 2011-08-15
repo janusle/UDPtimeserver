@@ -58,9 +58,9 @@ int senddata( int fd, void *data, int size,
 
 int receive( int sockfd, void *data , SAI* sock_addr);
 
-int reply( int sockfd, SAI* sock_addr, int logged);
+int reply( int sockfd, SAI* sock_addr, int logged, int sup_timeout );
 
-void Reply( int sockfd, SAI* sock_addr, int logged);
+void Reply( int sockfd, SAI* sock_addr, int logged, int sup_timeout );
 
 int getrequest( int sockfd, SAI* sock_addr, int logged );
 

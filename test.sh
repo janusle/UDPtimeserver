@@ -4,4 +4,4 @@ make clean
 make
 clear
 
-./time-server "aaa"
+./time-server server.config

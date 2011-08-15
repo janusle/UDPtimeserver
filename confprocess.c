@@ -112,8 +112,7 @@ init( char* filename , char* config[] )
   fd = fopen(filename, "r");
   if( fd == NULL )
   {
-     fprintf(stderr, "Cannot read file\n");
-     exit(-1);
+     err_quit(false); 
   }
 
   for(i=0; i<CONFLEN; i++)
@@ -126,39 +125,28 @@ init( char* filename , char* config[] )
     {
 
       tmp = explode( line );
-      if( strcmp( "server_address", tmp[OPTION] ) == 0 )
+      if( strcmp( "address", tmp[OPTION] ) == 0 )
       {
-        if( config[SERVER_ADDRESS] == NULL ) 
+        if( config[ADDRESS] == NULL ) 
         {
-          config[SERVER_ADDRESS] = 
+          config[ADDRESS] = 
             (char*)Malloc( sizeof(char) * strlen( tmp[VALUE] ));
         }
 
-        strcpy( config[SERVER_ADDRESS], tmp[VALUE] );
+        strcpy( config[ADDRESS], tmp[VALUE] );
       }
 
-      if( strcmp( "server_name", tmp[OPTION] ) == 0 )
+
+      if( strcmp( "port", tmp[OPTION] ) == 0 )
       {
         
-        if( config[SERVER_NAME] == NULL ) 
+        if( config[PORT] == NULL ) 
         {
-          config[SERVER_NAME] = 
+          config[PORT] = 
             (char*)Malloc( sizeof(char) * strlen( tmp[VALUE] ));
         }
 
-        strcpy( config[SERVER_NAME], tmp[VALUE] );
-      }
-
-      if( strcmp( "server_port", tmp[OPTION] ) == 0 )
-      {
-        
-        if( config[SERVER_PORT] == NULL ) 
-        {
-          config[SERVER_PORT] = 
-            (char*)Malloc( sizeof(char) * strlen( tmp[VALUE] ));
-        }
-
-        strcpy( config[SERVER_PORT], tmp[VALUE] );
+        strcpy( config[PORT], tmp[VALUE] );
       }
 
       if( strcmp( "print_message_details", tmp[OPTION] ) == 0 )
@@ -173,30 +161,17 @@ init( char* filename , char* config[] )
         strcpy( config[PRINT_MSG], tmp[VALUE] );
       }
      
-      if( strcmp( "request_count" , tmp[OPTION] ) == 0 )
+      if( strcmp( "support_timeout" , tmp[OPTION] ) == 0 )
       {
 
-        if( config[REQ_COUNT] == NULL ) 
+        if( config[SUP_TIMEOUT] == NULL ) 
         {
-          config[REQ_COUNT] = 
+          config[SUP_TIMEOUT] = 
             (char*)Malloc( sizeof(char) * strlen( tmp[VALUE] ));
         }
 
-        strcpy( config[REQ_COUNT], tmp[VALUE] );
+        strcpy( config[SUP_TIMEOUT], tmp[VALUE] );
       }
-
-      if( strcmp( "request_timeout", tmp[OPTION] ) == 0 )
-      {
-
-        if( config[REQ_TIMEOUT] == NULL ) 
-        {
-          config[REQ_TIMEOUT] = 
-            (char*)Malloc( sizeof(char) * strlen( tmp[VALUE] ));
-        }
-        strcpy( config[REQ_TIMEOUT], tmp[VALUE] );
-      }
-
-
 
       /*
       printf("%s %s\n", tmp[OPTION], tmp[VALUE]);
@@ -205,9 +180,7 @@ init( char* filename , char* config[] )
   }
 
   /* set default value */
-  if( (config[SERVER_ADDRESS] == NULL &&
-      config[SERVER_NAME] == NULL) ||
-      config[SERVER_PORT] == NULL )
+  if( config[ADDRESS] == NULL || config[PORT] == NULL )
   {
     fprintf(stderr, "Bad format in config file\n");
     exit(-1);
@@ -221,17 +194,10 @@ init( char* filename , char* config[] )
   }
 
 
-  if( config[REQ_COUNT] == NULL )
+  if( config[SUP_TIMEOUT] == NULL )
   {
-    config[REQ_COUNT] = (char*)Malloc( sizeof(char)*LEN );
-    strcpy( config[REQ_COUNT], TIMES);
-  }
-
-
-  if( config[REQ_TIMEOUT] == NULL )
-  {
-    config[REQ_TIMEOUT] = (char*)Malloc( sizeof(char)*LEN );
-    strcpy( config[REQ_TIMEOUT], TIMEOUT);
+    config[SUP_TIMEOUT] = (char*)Malloc( sizeof(char)*LEN );
+    strcpy( config[SUP_TIMEOUT], "ON");
   }
 
 

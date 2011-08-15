@@ -8,18 +8,18 @@
 #define ARRAYLEN 2
 #define LEN 150
 
-#define SERVER_ADDRESS 0
-#define SERVER_NAME 1
-#define SERVER_PORT 2
-#define PRINT_MSG 3
-#define REQ_COUNT 4
-#define REQ_TIMEOUT 5
+#define ADDRESS 0
+#define PORT 1
+#define PRINT_MSG 2
+#define SUP_TIMEOUT 3
 
 #define TIMES "3"
 #define TIMEOUT "3"
-#define CONFLEN 6
+#define CONFLEN 4
 #define OPTION 0
 #define VALUE 1
+#define ON 1
+#define OFF 0
 
 char** explode( char* line );
 
