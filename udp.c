@@ -281,7 +281,7 @@ gentime( binarydata* req , int sup_timeout )
       req->minute = (unsigned char)t->tm_min;
       req->hour = (unsigned char)t->tm_hour;
       req->day = (unsigned char)t->tm_mday;
-      req->month = (unsigned char)t->tm_mon;
+      req->month = (unsigned char)(t->tm_mon+1);
       req->year = 1900 + t->tm_year;
       break;
     case 3:
