@@ -3,7 +3,7 @@
 
 extern int errno;
 
-
+/* convert hostname to ip address */
 static char*
 getip( SAI* servaddr )
 {
@@ -30,6 +30,7 @@ Socket( int family, int type, int protocol )
 }
 
 
+/* check whether data is valid */
 static int 
 checkdata( binarydata *data )
 {
@@ -171,6 +172,7 @@ Inet_pton( int family, char*strptr, void *addrptr)
    }
 }
 
+
 int 
 serverinit( char* address, int port )
 {
@@ -230,6 +232,7 @@ senddata( int fd, void *data,int size ,
 }
 
 
+/* generate a number in a range randomly */
 static int 
 randomint( int range )
 {
@@ -238,6 +241,7 @@ randomint( int range )
 }
 
 
+/* generate a time */
 static int 
 gentime( binarydata* req , int sup_timeout )
 {
@@ -296,6 +300,7 @@ gentime( binarydata* req , int sup_timeout )
 }
 
 
+/* generate human-readable string of time */
 static char*
 printtime( binarydata * data)
 {

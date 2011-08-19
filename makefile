@@ -1,5 +1,5 @@
 CC=gcc
-CFLAGS= -W -Wall -g -pedantic #-lsocket -lnsl
+CFLAGS= -W -Wall -g -pedantic -lsocket -lnsl
 
 all: time-server
 

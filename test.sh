@@ -1,5 +1,5 @@
 #!/bin/bash
-
+# test script 
 make clean
 make
 clear
